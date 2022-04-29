@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>E_Agenda.Infra.Arquivos</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\E-Agenda.Dominio\E-Agenda.Dominio.csproj" />
+  </ItemGroup>
+
+</Project>
