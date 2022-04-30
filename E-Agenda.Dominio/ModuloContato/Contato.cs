@@ -15,6 +15,11 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
         string empresa;
         string cargo;
 
+
+        public Contato()
+        {
+
+        }
         public Contato(string nome,
         string email,
         string telefone,
@@ -28,10 +33,11 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
             this.cargo = cargo;
         }
 
-        public string Nome { get => nome; }
-        public string Email { get => email;}
-        public string Telefone { get => telefone;}
-        public string Cargo { get => cargo;}
+        public string Nome { get => nome; set => nome = value; }
+        public string Email { get => email; set => email = value; }
+       
+        public string Telefone { get => telefone; set => cargo = value; }
+        public string Cargo { get => cargo; set => cargo = value; }
 
         public int CompareTo(Contato other)
         {
@@ -40,12 +46,12 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
 
         public override string ToString()
         {
-            return $"{id}  -" +
-                $"{Nome}  -" +
-                $"{email}  -" +
-                $"{telefone}  -" +
-                $"{empresa}  -" +
-                  $"{cargo}  -";
+            return $"({id})   " +
+                $"({Nome})   " +
+                $"({email})   " +
+                $"({telefone})   " +
+                $"({empresa})   " +
+                  $"({cargo})   ";
         }
     }
 }

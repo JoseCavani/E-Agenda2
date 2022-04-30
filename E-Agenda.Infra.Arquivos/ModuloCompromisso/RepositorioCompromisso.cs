@@ -9,6 +9,5 @@ namespace E_Agenda.ConsoleApp1.ModuloCompromisso
 {
     public class RepositorioCompromisso : RepositorioBase<Compromisso>
     {
-
     }
 }

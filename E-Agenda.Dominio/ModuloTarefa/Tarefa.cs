@@ -17,6 +17,11 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
         DateTime dataConclusao;
         double percentualConclusao;
         List<Item> items;
+        public Tarefa()
+        {
+
+        }
+
 
         public Tarefa(Prioridade prioridade, string titulo, DateTime dataCriacao, DateTime dataConclusao)
         {
@@ -28,18 +33,18 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
         }
         public DateTime DataConclusao { get => dataConclusao; set => dataConclusao = value; }
         public List<Item> Items { get => items; set => items = value; }
-        public double PercentualConclusao { get => percentualConclusao;}
-        public string Titulo { get => titulo;}
-        public DateTime DataCriacao { get => dataCriacao; }
+        public double PercentualConclusao { get => percentualConclusao; set => percentualConclusao = value; }
+        public string Titulo { get => titulo; set => titulo = value; }
+        public DateTime DataCriacao { get => dataCriacao; set => dataCriacao = value;  }
 
         public override string ToString()
         {
-            return $"{id}  -" +
-                $"{prioridade}  -" +
-                $"{Titulo}  -" +
-                $"{dataCriacao}  -" +
-                $"{DataConclusao}  -" +
-                $"{percentualConclusao}% ";
+            return $"({id})  " +
+                $"({prioridade})  " +
+                $"({Titulo})  " +
+                $"({dataCriacao})  " +
+                $"({DataConclusao})  " +
+                $"({percentualConclusao}%)  ";
         }
 
         public void CalculaPercentualConclusao()
@@ -56,6 +61,10 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
                     c++;
             }
             percentualConclusao = (double)c/(double)items.Count *100;
+            if(percentualConclusao == 100)
+            {
+                dataConclusao = DateTime.Now;
+            }
         }
 
         public int CompareTo(Tarefa other)

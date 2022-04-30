@@ -11,7 +11,6 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
 {
     public class RepositorioTarefa : RepositorioBase<Tarefa>
     {
-   
 
         public override void Excluir(int id)
         {
@@ -29,17 +28,12 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
             Registros[index] = entidadeNova;
         }
 
-        public void Ordenar()
-        {
-            Registros.Sort();
-        }
-
         public void AdicionarItems(Tarefa tarefa,List<Item> items)
         {
            tarefa.Items = items;
             tarefa.CalculaPercentualConclusao();
         }
 
-
+    
     }
 }

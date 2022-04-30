@@ -15,7 +15,9 @@ namespace E_Agenda.ConsoleApp1.ModuloCompromisso
             DateTime dataInicio;
             DateTime dataFim;
             Contato contato;
-        
+
+        public Compromisso() { }
+
             public Compromisso(string assunto,
         string local,
         DateTime dataInicio,
@@ -29,17 +31,20 @@ namespace E_Agenda.ConsoleApp1.ModuloCompromisso
             this.contato = contato;
             }
 
-        public DateTime DataInicio { get => dataInicio; }
-        public DateTime DataFim { get => dataFim; }
+        public DateTime DataInicio { get => dataInicio; set => dataInicio = value; }
+        public DateTime DataFim { get => dataFim; set => dataFim = value; }
+        public string Assunto { get => assunto; set => assunto = value; }
+        public string Local { get => local; set => local = value; }
+        public Contato Contato { get => contato; set => contato = value; }
 
         public override string ToString()
             {
-                return $"{id}  -" +
-                    $"{local}  -" +
-                    $"{assunto}  -" +
-                    $"{DataInicio}  -" +
-                    $"{DataFim}  -" +
-                    $"{contato.Nome}  -";
+                return $"({id})   " +
+                    $"({local})   " +
+                    $"({assunto})   " +
+                    $"({DataInicio})   " +
+                    $"({DataFim})   " +
+                    $"({contato.Nome})   ";
             }
         }
     }

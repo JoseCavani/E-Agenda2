@@ -9,6 +9,7 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
 {
     public class RepositorioContato : RepositorioBase<Contato>
     {
+
         public void AgrupadosPorCargo()
         {
             Registros.Sort();

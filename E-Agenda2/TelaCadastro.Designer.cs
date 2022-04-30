@@ -219,7 +219,6 @@
             this.ClientSize = new System.Drawing.Size(221, 276);
             this.Controls.Add(this.buttonGravar);
             this.Controls.Add(this.textBoxDescricao);
-            this.Controls.Add(this.checkedListBoxItems);
             this.Controls.Add(this.maskedTextBoxTelefone);
             this.Controls.Add(this.labelNomeContato);
             this.Controls.Add(this.comboBoxNomeContatos);
@@ -236,6 +235,7 @@
             this.Controls.Add(this.dateTimePickerDataInicio);
             this.Controls.Add(this.comboBoxPrioridade);
             this.Controls.Add(this.textBoxTitulo);
+            this.Controls.Add(this.checkedListBoxItems);
             this.Name = "TelaCadastro";
             this.Text = "TelaCadastro";
             this.ResumeLayout(false);

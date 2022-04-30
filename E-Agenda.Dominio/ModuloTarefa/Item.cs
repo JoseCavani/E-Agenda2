@@ -11,6 +11,9 @@ namespace E_Agenda.ConsoleApp1.ModuloItem
     {
        public string descricao;
       public  bool concluido;
+        public Item()
+        {
+        }
 
 
         public Item(string descricao)

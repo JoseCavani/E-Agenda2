@@ -25,9 +25,9 @@ namespace E_Agenda2
         List<Contato>? contatos;
         List<Item>? items;
         RepositorioTarefa? repositorioTarefa;
-        RepositorioContato repositorioContato;
-        private RepositorioCompromisso repositorioCompromisso;
-        dynamic? entidade;
+        RepositorioContato? repositorioContato;
+        private RepositorioCompromisso? repositorioCompromisso;
+        EntidadeBase? entidade;
 
         public Tarefa? Tarefa { get => tarefa; }
         public Contato? Contato { get => contato; }
@@ -71,7 +71,7 @@ namespace E_Agenda2
             labelNomeContato.Visible = flag;
         }
 
-        public TelaCadastro(dynamic entidade)
+        public TelaCadastro(EntidadeBase entidade)
         {
             InitializeComponent();
             this.entidade = entidade;
@@ -79,24 +79,45 @@ namespace E_Agenda2
             {
                 comboBoxPrioridade.DataSource = Enum.GetNames(typeof(Prioridade));
                 tarefa = (Tarefa)entidade;
-                textBoxTitulo.Text = tarefa.Titulo;
-                comboBoxPrioridade.SelectedItem = (Classes)tarefa.prioridade;
-                dateTimePickerDataInicio.Value = tarefa.DataCriacao;
-                dateTimePickerDataFim.Value = tarefa.DataConclusao;
+                if (tarefa.DataCriacao != DateTime.MinValue)
+                {
+                    dateTimePickerDataInicio.Enabled = false;
+                    textBoxTitulo.Text = tarefa.Titulo;
+                    dateTimePickerDataFim.Enabled = false;
+                    comboBoxPrioridade.SelectedItem = (Classes)tarefa.prioridade;
+                    dateTimePickerDataInicio.Value = tarefa.DataCriacao;
+                    dateTimePickerDataFim.Value = tarefa.DataConclusao;
+                }
             }
             else if (entidade is Contato)
-              contato = (Contato)entidade;
-            textBoxNome.Text = contato.Nome;
-            textBoxEmail.Text = contato.Email;
-            maskedTextBoxTelefone.Text = contato.Telefone;
-            textBoxEmpresa.Text = contato.Email;
-            textBoxCargo.Text = contato.Cargo;
-
+            {
+                contato = (Contato)entidade;
+                if (Contato.Nome != "")
+                {
+                    textBoxNome.Text = contato.Nome;
+                    textBoxEmail.Text = contato.Email;
+                    maskedTextBoxTelefone.Text = contato.Telefone;
+                    textBoxEmpresa.Text = contato.Email;
+                    textBoxCargo.Text = contato.Cargo;
+                }
+            }
+            else if (entidade is Compromisso)
+            {
+                compromisso = (Compromisso)entidade;
+                if (compromisso.DataInicio != DateTime.MinValue)
+                {
+                    textBoxAssunto.Text = compromisso.Assunto;
+                    textBoxLocal.Text = compromisso.Local;
+                    dateTimePickerDataFim.Value = compromisso.DataFim;
+                    dateTimePickerDataInicio.Value = compromisso.DataInicio;
+                    comboBoxNomeContatos.SelectedItem = compromisso.Contato.Nome;
+                }
+            }
         }
 
-        public TelaCadastro(List<Contato> contatos)// usado para abrir compromissos
+     
+        public void SetContatos(List<Contato> contatos)
         {
-            InitializeComponent();
             this.contatos = contatos;
             foreach (var item in contatos)
             {
@@ -105,10 +126,10 @@ namespace E_Agenda2
             }
         }
 
-        public TelaCadastro(Tarefa tarefa)// usado para abrir items
+        public TelaCadastro(Tarefa tarefa, Item item)// usado para abrir items
         {
             InitializeComponent();
-            EnumClasses = Classes.Item;
+            entidade = item;
             this.tarefa = tarefa;
             this.items = tarefa.Items;
             AtualizarListoBoxItems();
@@ -136,21 +157,18 @@ namespace E_Agenda2
 
         private void buttonSalvar_Click(object sender, EventArgs e)
         {
-            if (entidade is Tarefa) {
-                if (repositorioTarefa.GetRegistros().Exists(x => x.Titulo == textBoxTitulo.Text) || textBoxTitulo.Text == "")
+            if (entidade is Tarefa)
+            {
+                if (repositorioTarefa.GetRegistros().Exists(x =>x.Titulo == textBoxTitulo.Text) || textBoxTitulo.Text == "")
                 {
                     MessageBox.Show("titulo ja existe ou nao digitado");
                     return;
                 }
 
-                if (entidade != null)
-                {
-                    entidade = new Tarefa((Prioridade)Enum.Parse(typeof(Prioridade), comboBoxPrioridade.Text), textBoxTitulo.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value);
-                }
-
-                tarefa = new Tarefa((Prioridade)Enum.Parse(typeof(Prioridade), comboBoxPrioridade.Text), textBoxTitulo.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value);
+                    tarefa = new Tarefa((Prioridade)Enum.Parse(typeof(Prioridade), comboBoxPrioridade.Text), textBoxTitulo.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value);
             }
-            if (entidade is Contato) {
+            if (entidade is Contato)
+            {
 
                 if (textBoxNome.Text == "" || textBoxEmail.Text == "" || maskedTextBoxTelefone.Text == "")
                 {
@@ -171,16 +189,14 @@ namespace E_Agenda2
                     return;
                 }
 
-                if (entidade != null)
-                {
-                    entidade = new Contato(textBoxNome.Text, textBoxEmail.Text, maskedTextBoxTelefone.Text, textBoxEmpresa.Text, textBoxCargo.Text);
-                }
+               
 
                 contato = new Contato(textBoxNome.Text, textBoxEmail.Text, maskedTextBoxTelefone.Text, textBoxEmpresa.Text, textBoxCargo.Text);
             }
-            if (entidade is Compromisso) {
+            if (entidade is Compromisso)
+            {
 
-                if (repositorioCompromisso.GetRegistros().Exists(x => x.DataFim > dateTimePickerDataInicio.Value))
+                if (repositorioCompromisso.GetRegistros().Exists(x => x.DataFim < dateTimePickerDataFim.Value && x.DataInicio > dateTimePickerDataInicio.Value))
                 {
                     MessageBox.Show("data inical ultrapassou uma data final");
                     return;
@@ -192,8 +208,13 @@ namespace E_Agenda2
                     return;
                 }
 
+                if (dateTimePickerDataInicio.Value >= dateTimePickerDataFim.Value)
+                {
+                    MessageBox.Show("data inical maior que a final");
+                    return;
+                }
 
-                if (dateTimePickerDataFim.Value < dateTimePickerDataInicio.Value)
+                    if (dateTimePickerDataFim.Value < dateTimePickerDataInicio.Value)
                 {
                     MessageBox.Show("data inicial maior que a final");
                     return;
@@ -208,37 +229,33 @@ namespace E_Agenda2
                     return;
                 }
 
-                if (entidade != null)
-                {
-                    entidade = compromisso = new Compromisso(textBoxAssunto.Text, textBoxLocal.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value, contatos.Find(x => x.Nome == comboBoxNomeContatos.Text));
-                }
-
                 compromisso = new Compromisso(textBoxAssunto.Text, textBoxLocal.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value, contatos.Find(x => x.Nome == comboBoxNomeContatos.Text));
-            } 
-              if (entidade is Item) { 
-                    foreach (var item in items)
-                    {
-                        item.concluido = false;
-                    }
-                    foreach (var item in checkedListBoxItems.CheckedItems)
-                    {
-                        items.Find(x => x == item).concluido = true;
-                    }
+            }
+            if (entidade is Item)
+            {
+                foreach (var item in items)
+                {
+                    item.concluido = false;
+                }
+                foreach (var item in checkedListBoxItems.CheckedItems)
+                {
+                    items.Find(x => x == item).concluido = true;
+                }
             }
 
             this.DialogResult = DialogResult.OK;
         }
 
-        internal void PegarRepositorio(RepositorioTarefa repositorioTarefa)
+        internal void SetRepositorio(RepositorioTarefa repositorioTarefa)
         {
             this.repositorioTarefa = repositorioTarefa;
         }
 
-        internal void PegarRepositorio(RepositorioContato repositorioContato)
+        internal void SetRepositorio(RepositorioContato repositorioContato)
         {
             this.repositorioContato = repositorioContato;
         }
-        internal void PegarRepositorio(RepositorioCompromisso repositorioCompromisso)
+        internal void SetRepositorio(RepositorioCompromisso repositorioCompromisso)
         {
             this.repositorioCompromisso = repositorioCompromisso;
         }
