@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using E_Agenda.Infra.Arquivos.Compartilhado;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
 {
    public abstract class RepositorioBase<T> where T : EntidadeBase
     {
-        public string arquivo;
+        private readonly SerializadorJason<T> serializador;
         private readonly List<T> registros = new();
         int contador = 0;
 
@@ -18,15 +19,15 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
 
         public RepositorioBase()
         {
-            this.arquivo = @"D:\visual studio files\junk\" + typeof(T).Name + ".json";
-            registros = CarregarDoArquivo();
+            serializador = new();
+            registros = serializador.CarregarDoArquivo();
             if (registros.Count > 0)
                 contador = registros.Max(x => x.id);
         }
         public virtual void Excluir(int numeroId)
         {
             registros.Remove(registros.Find(x => x.id == numeroId));
-            GravarTarefasEmArquivo(Registros);
+            serializador.GravarTarefasEmArquivo(Registros);
         }
         public virtual void Editar(int numeroId,T entidadeNova)
         {
@@ -34,13 +35,13 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
           int index =  registros.FindIndex(x => x.id == numeroId);
             entidadeNova.id = registros[index].id;
             registros[index] = entidadeNova;
-            GravarTarefasEmArquivo(Registros);
+            serializador.GravarTarefasEmArquivo(Registros);
         }
         public virtual void Inserir(T entidade)
         {
             entidade.id = ++contador;
             Registros.Add(entidade);
-            GravarTarefasEmArquivo(Registros);
+            serializador.GravarTarefasEmArquivo(Registros);
         }
 
 
@@ -57,33 +58,6 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
         {
             return Registros.Find(x => x.id == id);
         }
-
-        public List<T> CarregarDoArquivo()
-        {
-            if (File.Exists(arquivo) == false)
-                return new List<T>();
-
-            string registrosJson = File.ReadAllText(arquivo);
-
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-
-            settings.Formatting = Formatting.Indented;
-
-           return JsonConvert.DeserializeObject<List<T>>(registrosJson, settings);
-           
-        }
-
-        public void GravarTarefasEmArquivo(List<T> registros)
-        {
-            JsonSerializerSettings settings = new JsonSerializerSettings();
-
-            settings.Formatting = Formatting.Indented;
-
-            string tarefasJson = JsonConvert.SerializeObject(registros, settings);
-
-            File.WriteAllText(arquivo, tarefasJson);
-        }
-
 
     }
 }

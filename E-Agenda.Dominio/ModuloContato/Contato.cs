@@ -35,9 +35,9 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
 
         public string Nome { get => nome; set => nome = value; }
         public string Email { get => email; set => email = value; }
-       
-        public string Telefone { get => telefone; set => cargo = value; }
+        public string Telefone { get => telefone; set => telefone = value; }
         public string Cargo { get => cargo; set => cargo = value; }
+        public string Empresa { get => empresa; set => empresa = value; }
 
         public int CompareTo(Contato other)
         {
