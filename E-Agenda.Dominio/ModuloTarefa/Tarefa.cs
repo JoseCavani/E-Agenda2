@@ -44,7 +44,7 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
                 $"({Titulo})  " +
                 $"({dataCriacao})  " +
                 $"({DataConclusao})  " +
-                $"({percentualConclusao}%)  ";
+                $"({percentualConclusao:F2}%)  ";
         }
 
         public void CalculaPercentualConclusao()

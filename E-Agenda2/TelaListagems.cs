@@ -17,10 +17,12 @@ namespace E_Agenda2
 {
     public partial class TelaListagems : Form
     {
+        #region propriedades
         RepositorioCompromisso repositorioCompromisso;
         RepositorioContato repositorioContato;
         RepositorioTarefa repositorioTarefa;
         TelaCadastro telaCadastro;
+        #endregion
         public TelaListagems()
         {
             InitializeComponent();
@@ -38,9 +40,9 @@ namespace E_Agenda2
             labelA.Visible = false;
             dateTimePickerDataFim.Visible = false;
             dateTimePickerDataInicio.Visible = false;
-            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos,(false,DateTime.MinValue,DateTime.MinValue));
-            AtualizarTarefasCompletasEIncompletas(repositorioTarefa,listBoxTarefasInCompletas,listBoxTarefasCompletas);
-            AtualizaListagem(repositorioContato,listBoxContatos);
+            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (false, DateTime.MinValue, DateTime.MinValue));
+            AtualizarTarefasCompletasEIncompletas(repositorioTarefa, listBoxTarefasInCompletas, listBoxTarefasCompletas);
+            AtualizaListagem(repositorioContato, listBoxContatos);
         }
 
 
@@ -136,13 +138,14 @@ namespace E_Agenda2
             }
             if (listBoxCompromissosFuturos.SelectedIndex == 0)
                 listBoxCompromissosFuturos.SelectedIndex = -1;
-        
 
-    }
 
-    #endregion
+        }
 
-    private void buttonInserir_Click(object sender, EventArgs e)
+        #endregion
+
+        #region Botões
+        private void buttonInserir_Click(object sender, EventArgs e)
         {
 
             switch ((Classes)Enum.Parse(typeof(Classes), comboBoxInserirOpcoes.Text))
@@ -189,7 +192,7 @@ namespace E_Agenda2
                         break;
                     case Classes.Compromisso:
                         repositorioCompromisso.Inserir(telaCadastro.Compromisso);
-                        AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos,(false,default,default));
+                        AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (false, default, default));
                         break;
                     case Classes.Item:
                         repositorioTarefa.AdicionarItems(telaCadastro.Tarefa, telaCadastro.Items);
@@ -199,18 +202,110 @@ namespace E_Agenda2
 
             }
         }
+        private void buttonEditar_Click(object sender, EventArgs e)
+        {
+            if (listBoxContatos.SelectedIndex != -1)
+            {
+                Contato c = (Contato)listBoxContatos.SelectedItem;
+                InicializaTelaCadastroParaContato(c);
+                var result = telaCadastro.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    repositorioContato.Editar(c.id, telaCadastro.Contato);
+                }
+                AtualizaListagem(repositorioContato, listBoxContatos);
+            }
+            else if (listBoxCompromissosPassados.SelectedIndex != -1)
+            {
+                Compromisso c = (Compromisso)listBoxCompromissosPassados.SelectedItem;
+                InicializaTelaCadastroParaCompromisso(c);
+                var result = telaCadastro.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    repositorioCompromisso.Editar(c.id, telaCadastro.Compromisso);
+                }
+                AtualizaListagem(repositorioCompromisso, listBoxCompromissosPassados);
+            }
+            else
+            {
+                Tarefa t;
+                ListBox listBox;
+                if (listBoxTarefasInCompletas.SelectedIndex > -1)
+                {
+                    t = (Tarefa)listBoxTarefasInCompletas.SelectedItem;
+                    listBox = listBoxTarefasInCompletas;
+                }
+                else
+                {
+                    t = (Tarefa)listBoxTarefasCompletas.SelectedItem;
+                    listBox = listBoxTarefasInCompletas;
+                }
+                InicializaTelaCadastroParaTarefa(t);
+                var result = telaCadastro.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    repositorioTarefa.Editar(t.id, telaCadastro.Tarefa);
+                }
+                repositorioTarefa.Ordenar();
+                AtualizaListagem(repositorioTarefa, listBox);
+            }
+        }
+        private void buttonExcluir_Click(object sender, EventArgs e)
+        {
+            if (listBoxContatos.SelectedIndex != -1)
+            {
+                Contato c = (Contato)listBoxContatos.SelectedItem;
+                if (repositorioCompromisso.GetRegistros().Exists(x => x.id == c.id))
+                {
+                    MessageBox.Show("contato atualmente em um comrpomisso");
+                    return;
+                }
+                ExcluirRegistro(repositorioContato, listBoxContatos);
+            }
+            else if (listBoxCompromissosPassados.SelectedIndex != -1)
+            {
+                ExcluirRegistro(repositorioCompromisso, listBoxCompromissosPassados);
+            }
+            else
+            {
+                ListBox listBox;
+                if (listBoxTarefasInCompletas.SelectedIndex > -1)
+                {
+                    MessageBox.Show("tarefas incompletas nao poderão ser apagadas");
+                    return;
+                }
+                else
+                {
+                    listBox = listBoxTarefasInCompletas;
+                }
+                ExcluirRegistro(repositorioTarefa, listBox);
+            }
 
+        }
+        private void buttonItem_Click(object sender, EventArgs e)
+        {
+            comboBoxInserirOpcoes.SelectedIndex = 3;
+            buttonInserir.PerformClick();
+        }
+        private void buttonFiltrar_Click(object sender, EventArgs e)
+        {
+            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (true, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value));
+        }
+        #endregion
+
+        #region inizializações
         private void InicializaTelaCadastroParaItem()
         {
             if (listBoxTarefasInCompletas.SelectedIndex > -1)
-                telaCadastro = new((Tarefa)listBoxTarefasInCompletas.SelectedItem, new Item());
+                telaCadastro = new((Tarefa)listBoxTarefasInCompletas.SelectedItem);
             else
-                telaCadastro = new((Tarefa)listBoxTarefasCompletas.SelectedItem, new Item());
+                telaCadastro = new((Tarefa)listBoxTarefasCompletas.SelectedItem);
             telaCadastro.TarefaVisibilidade(false);
             telaCadastro.CompromissoVisibilidade(false);
             telaCadastro.ContatosVisibilidade(false);
             telaCadastro.ItemsVisibilidade(true);
             telaCadastro.SetRepositorio(repositorioTarefa);
+            telaCadastro.Entidade = new Item();
         }
 
         private void InicializaTelaCadastroParaTarefa(Tarefa tarefa)
@@ -249,6 +344,9 @@ namespace E_Agenda2
             telaCadastro.ItemsVisibilidade(false);
             telaCadastro.SetRepositorio(repositorioContato);
         }
+        #endregion
+
+        #region Atualizações
 
         /// <summary>
         /// (Filtragem?,data inicio, data fim)
@@ -324,7 +422,7 @@ namespace E_Agenda2
         private void AtualizarCabecalhoListbox(ListBox listBox)
         {
             if (listBox == listBoxTarefasInCompletas || listBox == listBoxTarefasCompletas)
-                listBox.Items.Insert(0, "(id)  (prioridade)  (titulo)  (data criação)  data conclusao)  (%conclusão)");
+                listBox.Items.Insert(0, "(id)  (prioridade)  (titulo)  (data criação)  (data conclusao)  (%conclusão)");
 
             else if (listBox == listBoxCompromissosPassados || listBox == listBoxCompromissosFuturos)
                 listBox.Items.Insert(0, "(id) (Local) (assunto) (data e hora inicio) (data e hora fim) (nome contato)");
@@ -333,104 +431,19 @@ namespace E_Agenda2
                 listBox.Items.Insert(0, "(id)  (nome)  (email)  (telefone)  (empresa)  (cargo)");
         }
 
-        private void buttonItem_Click(object sender, EventArgs e)
-        {
-            comboBoxInserirOpcoes.SelectedIndex = 3;
-            buttonInserir.PerformClick();
-        }
+        #endregion
 
-        private void buttonEditar_Click(object sender, EventArgs e)
-        {
-            if (listBoxContatos.SelectedIndex != -1)
-            {
-                Contato c = (Contato)listBoxContatos.SelectedItem;
-                InicializaTelaCadastroParaContato(c);
-                var result = telaCadastro.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    repositorioContato.Editar(c.id, telaCadastro.Contato);
-                }
-                AtualizaListagem(repositorioContato, listBoxContatos);
-            }
-            else if (listBoxCompromissosPassados.SelectedIndex != -1)
-            {
-                Compromisso c = (Compromisso)listBoxCompromissosPassados.SelectedItem;
-                InicializaTelaCadastroParaCompromisso(c);
-                var result = telaCadastro.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    repositorioCompromisso.Editar(c.id, telaCadastro.Compromisso);
-                }
-                AtualizaListagem(repositorioCompromisso, listBoxCompromissosPassados);
-            }
-            else
-            {
-                Tarefa t;
-                ListBox listBox;
-                if (listBoxTarefasInCompletas.SelectedIndex > -1)
-                {
-                    t = (Tarefa)listBoxTarefasInCompletas.SelectedItem;
-                    listBox = listBoxTarefasInCompletas;
-                }
-                else
-                {
-                    t = (Tarefa)listBoxTarefasCompletas.SelectedItem;
-                    listBox = listBoxTarefasInCompletas;
-                }
-                InicializaTelaCadastroParaTarefa(t);
-                var result = telaCadastro.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    repositorioTarefa.Editar(t.id, telaCadastro.Tarefa);
-                }
-                repositorioTarefa.Ordenar();
-                AtualizaListagem(repositorioTarefa, listBox);
-            }
-        }
 
-        private void buttonExcluir_Click(object sender, EventArgs e)
-        {
-            if (listBoxContatos.SelectedIndex != -1)
-            {
-                Contato c = (Contato)listBoxContatos.SelectedItem;
-                if(repositorioCompromisso.GetRegistros().Exists(x => x.id == c.id))
-                {
-                    MessageBox.Show("contato atualmente em um comrpomisso");
-                        return ;
-                }
-                ExcluirRegistro(repositorioContato,listBoxContatos);
-            }
-          else if (listBoxCompromissosPassados.SelectedIndex != -1)
-            {
-                ExcluirRegistro(repositorioCompromisso, listBoxCompromissosPassados);
-            }
-            else
-            {
-                ListBox listBox;
-                if (listBoxTarefasInCompletas.SelectedIndex > -1)
-                {
-                    MessageBox.Show("tarefas incompletas nao poderão ser apagadas");
-                    return;
-                }
-                else
-                {
-                    listBox = listBoxTarefasInCompletas;
-                }
-                ExcluirRegistro(repositorioTarefa, listBox);
-            }
 
-        }
 
-        private void ExcluirRegistro<T>(RepositorioBase<T> repositorio,ListBox listBox)where T : EntidadeBase
+
+        private void ExcluirRegistro<T>(RepositorioBase<T> repositorio, ListBox listBox) where T : EntidadeBase
         {
             EntidadeBase c = (EntidadeBase)listBox.SelectedItem;
             repositorio.Excluir(c.id);
-            AtualizaListagem(repositorio,listBox);
+            AtualizaListagem(repositorio, listBox);
         }
 
-        private void buttonFiltrar_Click(object sender, EventArgs e)
-        {
-            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados,listBoxCompromissosFuturos,(true,dateTimePickerDataInicio.Value,dateTimePickerDataFim.Value));
-        }
+
     }
 }

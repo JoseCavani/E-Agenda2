@@ -11,7 +11,7 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
 {
    public abstract class RepositorioBase<T> where T : EntidadeBase
     {
-        private readonly SerializadorJason<T> serializador;
+        protected readonly SerializadorJason<T> serializador;
         private readonly List<T> registros = new();
         int contador = 0;
 
@@ -44,7 +44,9 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
             serializador.GravarTarefasEmArquivo(Registros);
         }
 
-
+        /// <summary>
+        /// IMPLEMETAR IComparable NA CLASSE.CS PARA FUNCIONAR
+        /// </summary>
         public void Ordenar()
         {
             Registros.Sort();
@@ -53,10 +55,6 @@ namespace E_Agenda.ConsoleApp1.Compartilhado
         public virtual List<T> GetRegistros()
         {
             return Registros;
-        }
-        public virtual T GetRegistro(int id)
-        {
-            return Registros.Find(x => x.id == id);
         }
 
     }

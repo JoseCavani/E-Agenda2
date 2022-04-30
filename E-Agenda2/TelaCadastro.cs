@@ -19,6 +19,7 @@ namespace E_Agenda2
 {
     public partial class TelaCadastro : Form
     {
+        #region atributos e propriedades
         private Tarefa? tarefa;
         private Contato? contato;
         private Compromisso? compromisso;
@@ -33,7 +34,10 @@ namespace E_Agenda2
         public Contato? Contato { get => contato; }
         public Compromisso? Compromisso { get => compromisso; }
         public List<Item>? Items { get => items; }
+        public EntidadeBase? Entidade { set => entidade = value; }
+        #endregion
 
+        #region visibilidades
         public void ItemsVisibilidade(bool flag)
         {
             buttonGravar.Visible = flag;
@@ -70,7 +74,8 @@ namespace E_Agenda2
             dateTimePickerDataInicio.Visible = flag;
             labelNomeContato.Visible = flag;
         }
-
+        #endregion
+        #region construtores
         public TelaCadastro(EntidadeBase entidade)
         {
             InitializeComponent();
@@ -81,6 +86,8 @@ namespace E_Agenda2
                 tarefa = (Tarefa)entidade;
                 if (tarefa.DataCriacao != DateTime.MinValue)
                 {
+                    this.items = tarefa.Items;
+                    AtualizarListoBoxItems();
                     dateTimePickerDataInicio.Enabled = false;
                     textBoxTitulo.Text = tarefa.Titulo;
                     dateTimePickerDataFim.Enabled = false;
@@ -114,8 +121,9 @@ namespace E_Agenda2
                 }
             }
         }
+    
 
-     
+        #endregion
         public void SetContatos(List<Contato> contatos)
         {
             this.contatos = contatos;
@@ -124,15 +132,6 @@ namespace E_Agenda2
                 comboBoxNomeContatos.Items.Add(item.Nome);
                 comboBoxNomeContatos.SelectedIndex = 0;
             }
-        }
-
-        public TelaCadastro(Tarefa tarefa, Item item)// usado para abrir items
-        {
-            InitializeComponent();
-            entidade = item;
-            this.tarefa = tarefa;
-            this.items = tarefa.Items;
-            AtualizarListoBoxItems();
         }
 
         private void AtualizarListoBoxItems()
@@ -154,18 +153,18 @@ namespace E_Agenda2
         {
             return new EmailAddressAttribute().IsValid(emailaddress);
         }
-
+        #region botões
         private void buttonSalvar_Click(object sender, EventArgs e)
         {
             if (entidade is Tarefa)
             {
-                if (repositorioTarefa.GetRegistros().Exists(x =>x.Titulo == textBoxTitulo.Text) || textBoxTitulo.Text == "")
+                if (repositorioTarefa.GetRegistros().Exists(x => x.Titulo == textBoxTitulo.Text) || textBoxTitulo.Text == "")
                 {
                     MessageBox.Show("titulo ja existe ou nao digitado");
                     return;
                 }
 
-                    tarefa = new Tarefa((Prioridade)Enum.Parse(typeof(Prioridade), comboBoxPrioridade.Text), textBoxTitulo.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value);
+                tarefa = new Tarefa((Prioridade)Enum.Parse(typeof(Prioridade), comboBoxPrioridade.Text), textBoxTitulo.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value);
             }
             if (entidade is Contato)
             {
@@ -189,7 +188,7 @@ namespace E_Agenda2
                     return;
                 }
 
-               
+
 
                 contato = new Contato(textBoxNome.Text, textBoxEmail.Text, maskedTextBoxTelefone.Text, textBoxEmpresa.Text, textBoxCargo.Text);
             }
@@ -214,7 +213,7 @@ namespace E_Agenda2
                     return;
                 }
 
-                    if (dateTimePickerDataFim.Value < dateTimePickerDataInicio.Value)
+                if (dateTimePickerDataFim.Value < dateTimePickerDataInicio.Value)
                 {
                     MessageBox.Show("data inicial maior que a final");
                     return;
@@ -231,21 +230,29 @@ namespace E_Agenda2
 
                 compromisso = new Compromisso(textBoxAssunto.Text, textBoxLocal.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value, contatos.Find(x => x.Nome == comboBoxNomeContatos.Text));
             }
-            if (entidade is Item)
-            {
-                foreach (var item in items)
-                {
-                    item.concluido = false;
-                }
-                foreach (var item in checkedListBoxItems.CheckedItems)
-                {
-                    items.Find(x => x == item).concluido = true;
-                }
-            }
 
             this.DialogResult = DialogResult.OK;
         }
 
+        private void MarcarItemsCheckado()
+        {
+            foreach (var item in checkedListBoxItems.CheckedItems)
+            {
+                items.Find(x => x == item).concluido = true;
+            }
+        }
+
+        private void buttonGravar_Click(object sender, EventArgs e)
+        {
+
+            items.Add(new Item(textBoxDescricao.Text));
+            MarcarItemsCheckado();
+            AtualizarListoBoxItems();
+        }
+        #endregion
+
+
+        #region setar repositorios
         internal void SetRepositorio(RepositorioTarefa repositorioTarefa)
         {
             this.repositorioTarefa = repositorioTarefa;
@@ -259,12 +266,7 @@ namespace E_Agenda2
         {
             this.repositorioCompromisso = repositorioCompromisso;
         }
+        #endregion
 
-        private void buttonGravar_Click(object sender, EventArgs e)
-        {
-
-            items.Add(new Item(textBoxDescricao.Text));
-            AtualizarListoBoxItems();
-        }
     }
 }
