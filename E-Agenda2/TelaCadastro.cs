@@ -230,8 +230,16 @@ namespace E_Agenda2
 
                 compromisso = new Compromisso(textBoxAssunto.Text, textBoxLocal.Text, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value, contatos.Find(x => x.Nome == comboBoxNomeContatos.Text));
             }
+            if (entidade is Item)
+            {
+                foreach (Item item in checkedListBoxItems.CheckedItems)
+                {
+                    item.concluido = true;
+                }
+                items = checkedListBoxItems.Items.Cast<Item>().ToList();
+            }
 
-            this.DialogResult = DialogResult.OK;
+                this.DialogResult = DialogResult.OK;
         }
 
         private void MarcarItemsCheckado()
@@ -244,7 +252,11 @@ namespace E_Agenda2
 
         private void buttonGravar_Click(object sender, EventArgs e)
         {
-
+            if (textBoxDescricao.Text == "") 
+            {
+                MessageBox.Show("descrição vazia");
+                return;
+            }
             items.Add(new Item(textBoxDescricao.Text));
             MarcarItemsCheckado();
             AtualizarListoBoxItems();

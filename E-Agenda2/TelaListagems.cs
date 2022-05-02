@@ -40,9 +40,11 @@ namespace E_Agenda2
             labelA.Visible = false;
             dateTimePickerDataFim.Visible = false;
             dateTimePickerDataInicio.Visible = false;
-            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (false, DateTime.MinValue, DateTime.MinValue));
+            AtualizarCompromissosPassadosEFuturos( (false, DateTime.MinValue, DateTime.MinValue));
             AtualizarTarefasCompletasEIncompletas(repositorioTarefa, listBoxTarefasInCompletas, listBoxTarefasCompletas);
             AtualizaListagem(repositorioContato, listBoxContatos);
+            buttonFiltrar.Visible = false;
+
         }
 
 
@@ -58,6 +60,7 @@ namespace E_Agenda2
                 labelA.Visible = false;
                 dateTimePickerDataFim.Visible = false;
                 dateTimePickerDataInicio.Visible = false;
+                buttonFiltrar.Visible =false;
                 listBoxCompromissosPassados.SelectedIndex = -1;
                 listBoxContatos.SelectedIndex = -1;
                 listBoxTarefasCompletas.SelectedIndex = -1;
@@ -81,6 +84,7 @@ namespace E_Agenda2
                 listBoxTarefasInCompletas.SelectedIndex = -1;
                 listBoxContatos.SelectedIndex = -1;
                 listBoxTarefasCompletas.SelectedIndex = -1;
+                buttonFiltrar.Visible = false;
                 buttonItem.Visible = false;
                 labelA.Visible = false;
                 dateTimePickerDataFim.Visible = false;
@@ -99,6 +103,8 @@ namespace E_Agenda2
                 listBoxTarefasCompletas.SelectedIndex = -1;
                 listBoxCompromissosPassados.SelectedIndex = -1;
                 buttonItem.Visible = false;
+
+                buttonFiltrar.Visible = false;
                 labelA.Visible = false;
                 dateTimePickerDataFim.Visible = false;
                 dateTimePickerDataInicio.Visible = false;
@@ -115,6 +121,11 @@ namespace E_Agenda2
                 listBoxCompromissosPassados.SelectedIndex = -1;
                 listBoxContatos.SelectedIndex = -1;
                 listBoxTarefasInCompletas.SelectedIndex = -1;
+                labelA.Visible = false;
+                dateTimePickerDataFim.Visible = false;
+                dateTimePickerDataInicio.Visible = false;
+
+                buttonFiltrar.Visible = false;
                 buttonItem.Visible = true;
             }
             if (listBoxTarefasCompletas.SelectedIndex == 0)
@@ -133,6 +144,7 @@ namespace E_Agenda2
                 listBoxTarefasCompletas.SelectedIndex = -1;
                 buttonItem.Visible = false;
                 labelA.Visible = true;
+                buttonFiltrar.Visible = true;
                 dateTimePickerDataFim.Visible = true;
                 dateTimePickerDataInicio.Visible = true;
             }
@@ -192,7 +204,7 @@ namespace E_Agenda2
                         break;
                     case Classes.Compromisso:
                         repositorioCompromisso.Inserir(telaCadastro.Compromisso);
-                        AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (false, default, default));
+                        AtualizarCompromissosPassadosEFuturos( (false, default, default));
                         break;
                     case Classes.Item:
                         repositorioTarefa.AdicionarItems(telaCadastro.Tarefa, telaCadastro.Items);
@@ -215,16 +227,24 @@ namespace E_Agenda2
                 }
                 AtualizaListagem(repositorioContato, listBoxContatos);
             }
-            else if (listBoxCompromissosPassados.SelectedIndex != -1)
+            else if (listBoxCompromissosPassados.SelectedIndex != -1 || listBoxCompromissosFuturos.SelectedIndex != -1)
             {
-                Compromisso c = (Compromisso)listBoxCompromissosPassados.SelectedItem;
+                Compromisso c = new();
+                if (listBoxCompromissosFuturos.SelectedIndex > -1)
+                {
+                    c = (Compromisso)listBoxCompromissosFuturos.SelectedItem;
+                }
+                if (listBoxCompromissosPassados.SelectedIndex > -1)
+                {
+                    c = (Compromisso)listBoxCompromissosPassados.SelectedItem;
+                }
                 InicializaTelaCadastroParaCompromisso(c);
                 var result = telaCadastro.ShowDialog();
                 if (result == DialogResult.OK)
                 {
                     repositorioCompromisso.Editar(c.id, telaCadastro.Compromisso);
                 }
-                AtualizaListagem(repositorioCompromisso, listBoxCompromissosPassados);
+                AtualizarCompromissosPassadosEFuturos((false,default,default));
             }
             else
             {
@@ -276,7 +296,7 @@ namespace E_Agenda2
                 }
                 else
                 {
-                    listBox = listBoxTarefasInCompletas;
+                    listBox = listBoxTarefasCompletas;
                 }
                 ExcluirRegistro(repositorioTarefa, listBox);
             }
@@ -289,7 +309,7 @@ namespace E_Agenda2
         }
         private void buttonFiltrar_Click(object sender, EventArgs e)
         {
-            AtualizarCompromissosPassadosEFuturos(listBoxCompromissosPassados, listBoxCompromissosFuturos, (true, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value));
+            AtualizarCompromissosPassadosEFuturos( (true, dateTimePickerDataInicio.Value, dateTimePickerDataFim.Value));
         }
         #endregion
 
@@ -352,34 +372,34 @@ namespace E_Agenda2
         /// (Filtragem?,data inicio, data fim)
         /// </summary>
         /// <param name="filtragem"></param>
-        private void AtualizarCompromissosPassadosEFuturos(ListBox listBoxPassados, ListBox listBoxFuturos, (bool, DateTime, DateTime) filtragem)
+        private void AtualizarCompromissosPassadosEFuturos((bool, DateTime, DateTime) filtragem)
         {
             if (filtragem.Item1)
             {
-                listBoxFuturos.Items.Clear();
-                AtualizarCabecalhoListbox(listBoxFuturos);
+                listBoxCompromissosFuturos.Items.Clear();
+                AtualizarCabecalhoListbox(listBoxCompromissosFuturos);
                 foreach (var compromisso in repositorioCompromisso.GetRegistros())
                 {
 
                     if (compromisso.DataFim > DateTime.Now && compromisso.DataFim > filtragem.Item2 && compromisso.DataFim > filtragem.Item3)
-                        listBoxFuturos.Items.Add(compromisso);
+                        listBoxCompromissosFuturos.Items.Add(compromisso);
 
                 }
             }
 
             else
             {
-                listBoxPassados.Items.Clear();
-                listBoxFuturos.Items.Clear();
-                AtualizarCabecalhoListbox(listBoxPassados);
-                AtualizarCabecalhoListbox(listBoxFuturos);
+                listBoxCompromissosPassados.Items.Clear();
+                listBoxCompromissosFuturos.Items.Clear();
+                AtualizarCabecalhoListbox(listBoxCompromissosPassados);
+                AtualizarCabecalhoListbox(listBoxCompromissosFuturos);
                 foreach (var compromisso in repositorioCompromisso.GetRegistros())
                 {
 
                     if (compromisso.DataFim > DateTime.Now)
-                        listBoxFuturos.Items.Add(compromisso);
+                        listBoxCompromissosFuturos.Items.Add(compromisso);
                     else
-                        listBoxPassados.Items.Add(compromisso);
+                        listBoxCompromissosPassados.Items.Add(compromisso);
 
                 }
             }
@@ -422,13 +442,13 @@ namespace E_Agenda2
         private void AtualizarCabecalhoListbox(ListBox listBox)
         {
             if (listBox == listBoxTarefasInCompletas || listBox == listBoxTarefasCompletas)
-                listBox.Items.Insert(0, "(id)  (prioridade)  (titulo)  (data criação)  (data conclusao)  (%conclusão)");
+                listBox.Items.Insert(0, "(id)".PadRight(10, ' ') + "(prioridade)".PadRight(20, ' ') + "(titulo)".PadRight(20, ' ') + "(data criação)".PadRight(30, ' ') +"(data conclusao)".PadRight(28, ' ') + "(%conclusão)");
 
             else if (listBox == listBoxCompromissosPassados || listBox == listBoxCompromissosFuturos)
-                listBox.Items.Insert(0, "(id) (Local) (assunto) (data e hora inicio) (data e hora fim) (nome contato)");
+                listBox.Items.Insert(0, "(id)".PadRight(10, ' ') + "(Local)".PadRight(20, ' ') + "(assunto)".PadRight(20, ' ') + "(data e hora inicio)".PadRight(30, ' ') + "(data e hora fim)".PadRight(28, ' ') + "(nome contato)");
 
             else if (listBox == listBoxContatos)
-                listBox.Items.Insert(0, "(id)  (nome)  (email)  (telefone)  (empresa)  (cargo)");
+                listBox.Items.Insert(0, "(id)".PadRight(10, ' ') +  "(nome)".PadRight(20, ' ') +  "(email)".PadRight(20, ' ') + "(telefone)".PadRight(20, ' ') + "(empresa)".PadRight(20, ' ') + "(cargo)");
         }
 
         #endregion

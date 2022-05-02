@@ -39,11 +39,11 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
 
         public override string ToString()
         {
-            return $"({id})  " +
-                $"({prioridade})  " +
-                $"({Titulo})  " +
-                $"({dataCriacao})  " +
-                $"({DataConclusao})  " +
+            return $"({id})  ".PadRight(10, ' ') +
+                $"({prioridade})  ".PadRight(20, ' ') +
+                $"({Titulo})  ".PadRight(20, ' ') +
+                $"({dataCriacao})  ".PadRight(25, ' ') +
+                $"({DataConclusao})  ".PadRight(25, ' ') +
                 $"({percentualConclusao:F2}%)  ";
         }
 
@@ -51,7 +51,7 @@ namespace E_Agenda.ConsoleApp1.ModuloTarefa
         {
             if (items.Count == 0)
             {
-                percentualConclusao = 0;
+                percentualConclusao = 100;
                 return;
             }
             int c = 0;

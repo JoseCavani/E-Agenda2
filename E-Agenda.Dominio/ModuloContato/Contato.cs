@@ -46,11 +46,11 @@ namespace E_Agenda.ConsoleApp1.ModuloContato
 
         public override string ToString()
         {
-            return $"({id})   " +
-                $"({Nome})   " +
-                $"({email})   " +
-                $"({telefone})   " +
-                $"({empresa})   " +
+            return $"({id})   ".PadRight(10,' ') +
+                $"({Nome})   ".PadRight(20, ' ') +
+                $"({email})   ".PadRight(20, ' ') +
+                $"({telefone})   ".PadRight(20, ' ') +
+                $"({empresa})   ".PadRight(20, ' ') +
                   $"({cargo})   ";
         }
     }

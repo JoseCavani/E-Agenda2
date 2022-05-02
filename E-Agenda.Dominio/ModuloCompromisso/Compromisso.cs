@@ -39,11 +39,11 @@ namespace E_Agenda.ConsoleApp1.ModuloCompromisso
 
         public override string ToString()
             {
-                return $"({id})   " +
-                    $"({local})   " +
-                    $"({assunto})   " +
-                    $"({DataInicio})   " +
-                    $"({DataFim})   " +
+                return $"({id})   ".PadRight(10, ' ') +
+                    $"({local})   ".PadRight(20, ' ') +
+                    $"({assunto})   ".PadRight(20, ' ') +
+                    $"({DataInicio})   ".PadRight(25, ' ') +
+                    $"({DataFim})   ".PadRight(35, ' ') +
                     $"({contato.Nome})   ";
             }
         }
