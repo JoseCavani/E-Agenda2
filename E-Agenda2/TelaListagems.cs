@@ -249,16 +249,13 @@ namespace E_Agenda2
             else
             {
                 Tarefa t;
-                ListBox listBox;
                 if (listBoxTarefasInCompletas.SelectedIndex > -1)
                 {
                     t = (Tarefa)listBoxTarefasInCompletas.SelectedItem;
-                    listBox = listBoxTarefasInCompletas;
                 }
                 else
                 {
                     t = (Tarefa)listBoxTarefasCompletas.SelectedItem;
-                    listBox = listBoxTarefasInCompletas;
                 }
                 InicializaTelaCadastroParaTarefa(t);
                 var result = telaCadastro.ShowDialog();
@@ -267,7 +264,7 @@ namespace E_Agenda2
                     repositorioTarefa.Editar(t.id, telaCadastro.Tarefa);
                 }
                 repositorioTarefa.Ordenar();
-                AtualizaListagem(repositorioTarefa, listBox);
+                AtualizarTarefasCompletasEIncompletas(repositorioTarefa, listBoxTarefasInCompletas,listBoxTarefasCompletas);
             }
         }
         private void buttonExcluir_Click(object sender, EventArgs e)

@@ -27,7 +27,7 @@ namespace E_Agenda2
         List<Item>? items;
         RepositorioTarefa? repositorioTarefa;
         RepositorioContato? repositorioContato;
-        private RepositorioCompromisso? repositorioCompromisso;
+        RepositorioCompromisso? repositorioCompromisso;
         EntidadeBase? entidade;
 
         public Tarefa? Tarefa { get => tarefa; }
@@ -158,7 +158,7 @@ namespace E_Agenda2
         {
             if (entidade is Tarefa)
             {
-                if (repositorioTarefa.GetRegistros().Exists(x => x.Titulo == textBoxTitulo.Text) || textBoxTitulo.Text == "")
+                if (repositorioTarefa.GetRegistros().Exists(x => x.Titulo == textBoxTitulo.Text && x.id != tarefa.id) || textBoxTitulo.Text == "")
                 {
                     MessageBox.Show("titulo ja existe ou nao digitado");
                     return;
@@ -175,7 +175,7 @@ namespace E_Agenda2
                     return;
                 }
 
-                if (repositorioContato.GetRegistros().Exists(x => x.Nome == textBoxNome.Text) && repositorioContato.GetRegistros().Exists(x => x.Telefone == maskedTextBoxTelefone.Text) && repositorioContato.GetRegistros().Exists(x => x.Email == textBoxEmail.Text))
+                if (repositorioContato.GetRegistros().Exists(x => x.Nome == textBoxNome.Text) && repositorioContato.GetRegistros().Exists(x => x.Telefone == maskedTextBoxTelefone.Text) && repositorioContato.GetRegistros().Exists(x => x.Email == textBoxEmail.Text && x.id != contato.id))
                 {
                     MessageBox.Show("email nome e telefone ja existente");
                     return;
